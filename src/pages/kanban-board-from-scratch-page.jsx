@@ -87,7 +87,7 @@ const KanbanBoardFromScratchPage = ({
         }
     ])
 
-    const {data, isLoading, isFetching, isError} = useGetAllQuery({key: KEYS.tasks, url: URLS.tasks});
+    // const {data, isLoading, isFetching, isError} = useGetAllQuery({key: KEYS.tasks, url: URLS.tasks});
 
     // const boards = useMemo(() => [
     //     {id: 1, title: "Todo", status: "new"},
@@ -97,6 +97,7 @@ const KanbanBoardFromScratchPage = ({
 
 
     const dragStartHandler = useCallback((e, board, item) => {
+        setCurrentBoard(board);
         setCurrentCard(item);
     }, [])
 
@@ -109,22 +110,35 @@ const KanbanBoardFromScratchPage = ({
         e.preventDefault()
     }, [])
 
-    const dropHandler = (e, status, card) => {
-        console.log('drop', card, status)
+    const dropHandler = (e, board, item) => {
+        console.log('drop', item, board)
         e.preventDefault();
+        e.stopPropagation()
+        const currentIndex = currentBoard.items.indexOf(currentCard);
+        currentBoard.items.splice(currentIndex,1);
+        const dropIndex = board.items.indexOf(item);
+        board.items.splice(dropIndex+1,0,currentCard)
+        setBoards(boards.map(b => {
+            if(b.id === board.id){
+                return board
+            }
+            if(b.id === currentBoard.id){
+                return currentBoard
+            }
+        }))
     }
 
-    if (isError) {
-        return "Something is wrong";
-    }
-
-    if (isLoading) {
-        return "Loading...";
-    }
-
-    if (isFetching) {
-        return "Fetching...";
-    }
+    // if (isError) {
+    //     return "Something is wrong";
+    // }
+    //
+    // if (isLoading) {
+    //     return "Loading...";
+    // }
+    //
+    // if (isFetching) {
+    //     return "Fetching...";
+    // }
 
 
     return (
