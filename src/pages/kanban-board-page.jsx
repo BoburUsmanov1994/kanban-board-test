@@ -1,37 +1,46 @@
-import React, { useState } from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { v4 as uuid } from 'uuid';
+import React, {useEffect, useState} from "react";
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import {v4 as uuid} from 'uuid';
+import {useDeleteQuery, useGetAllQuery, usePutQuery} from "../hooks/api";
+import {KEYS} from "../constants/keys";
+import {URLS} from "../constants/urls";
+import {get} from "lodash";
+import styled from "styled-components";
+import Button from "../components/button";
+import Modal from "../components/modal";
+import Form from "../components/form";
+import {Trash2, Edit2} from "react-feather";
+import Dropzone from "../components/dropzone";
 
-const itemsFromBackend = [
-    { id: uuid(), content: "First task" },
-    { id: uuid(), content: "Second task" },
-    { id: uuid(), content: "Third task" },
-    { id: uuid(), content: "Fourth task" },
-    { id: uuid(), content: "Fifth task" }
-];
-
-const columnsFromBackend = {
-    [uuid()]: {
-        name: "Requested",
-        items: itemsFromBackend
-    },
-    [uuid()]: {
-        name: "To do",
-        items: []
-    },
-    [uuid()]: {
-        name: "In Progress",
-        items: []
-    },
-    [uuid()]: {
-        name: "Done",
-        items: []
+const Styled = styled.div`
+  .board {
+    &__column {
     }
-};
+
+    &__item {
+      position: relative;
+      padding-right: 15px;
+    }
+
+    &__remove {
+      position: absolute;
+      top: 35px;
+      right: 5px;
+      cursor: pointer;
+    }
+
+    &__edit {
+      position: absolute;
+      top: 10px;
+      right: 5px;
+      cursor: pointer;
+    }
+  }
+`;
 
 const onDragEnd = (result, columns, setColumns) => {
     if (!result.destination) return;
-    const { source, destination } = result;
+    const {source, destination} = result;
 
     if (source.droppableId !== destination.droppableId) {
         const sourceColumn = columns[source.droppableId];
@@ -66,10 +75,55 @@ const onDragEnd = (result, columns, setColumns) => {
     }
 };
 
-function App() {
-    const [columns, setColumns] = useState(columnsFromBackend);
+const KanbanPage = ({...rest}) => {
+
+    const {data, isLoading, isFetching, isError} = useGetAllQuery({key: KEYS.tasks, url: URLS.tasks});
+    const {mutate: deleteRequest} = useDeleteQuery({listKeyId: KEYS.tasks})
+
+    const [columns, setColumns] = useState({});
+    const [show, setShow] = useState(false);
+    const [id, setId] = useState(null);
+
+    useEffect(() => {
+        setColumns({
+            [uuid()]: {
+                name: "Requested",
+                items: get(data, 'data', [])
+            },
+            [uuid()]: {
+                name: "To do",
+                items: []
+            },
+            [uuid()]: {
+                name: "In Progress",
+                items: []
+            },
+            [uuid()]: {
+                name: "Done",
+                items: []
+            }
+        })
+    }, [data])
+
+    console.log('columns', columns, data)
+
+    const add = () => {
+        setShow(true);
+    }
+
+    const remove = (id) => {
+        deleteRequest({url: `${URLS.tasks}/${id}`})
+    }
+
+    const edit = (id) => {
+        setId(id);
+        setShow(true);
+    }
+
     return (
-        <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
+        <Styled
+            style={{display: "flex", justifyContent: "center", alignItems: "flex-start", height: "100%", padding: 30}}>
+            <Button onClick={add}>Add task</Button>
             <DragDropContext
                 onDragEnd={result => onDragEnd(result, columns, setColumns)}
             >
@@ -79,23 +133,25 @@ function App() {
                             style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                alignItems: "center"
+                                alignItems: "center",
+                                padding: 15
                             }}
                             key={columnId}
                         >
                             <h2>{column.name}</h2>
-                            <div style={{ margin: 8 }}>
+                            <div style={{margin: 8}}>
                                 <Droppable droppableId={columnId} key={columnId}>
                                     {(provided, snapshot) => {
                                         return (
                                             <div
+                                                className={'board__column'}
                                                 {...provided.droppableProps}
                                                 ref={provided.innerRef}
                                                 style={{
                                                     background: snapshot.isDraggingOver
                                                         ? "lightblue"
                                                         : "lightgrey",
-                                                    padding: 4,
+                                                    padding: 10,
                                                     width: 250,
                                                     minHeight: 500
                                                 }}
@@ -110,6 +166,7 @@ function App() {
                                                             {(provided, snapshot) => {
                                                                 return (
                                                                     <div
+                                                                        className={'board__item'}
                                                                         ref={provided.innerRef}
                                                                         {...provided.draggableProps}
                                                                         {...provided.dragHandleProps}
@@ -125,7 +182,14 @@ function App() {
                                                                             ...provided.draggableProps.style
                                                                         }}
                                                                     >
-                                                                        {item.content}
+                                                                        <h3>  {item.title}</h3>
+                                                                        <p>{item.description}</p>
+                                                                        <Edit2 className={"board__edit"} size={18}
+                                                                               onClick={() => edit(get(item, 'id'))}/>
+                                                                        <Trash2 className={"board__remove"} size={18}
+                                                                                onClick={() => remove(get(item, 'id'))}/>
+                                                                                <Dropzone />
+
                                                                     </div>
                                                                 );
                                                             }}
@@ -142,8 +206,9 @@ function App() {
                     );
                 })}
             </DragDropContext>
-        </div>
+            {show && <Modal onClose={setShow}><Form setShow={setShow} id={id}/></Modal>}
+        </Styled>
     );
 }
 
-export default App;
+export default KanbanPage;

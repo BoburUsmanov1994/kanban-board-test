@@ -31,6 +31,12 @@ const GlobalStyles = createGlobalStyle`
  .text-center{
    text-align: center;
  }
+ .select__file{
+   padding: 15px;
+   border:1px dashed #fff;
+   margin-top: 5px;
+   margin-bottom: 5px;
+ }
   
 `;
 const Theme = ({children}) => {

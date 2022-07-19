@@ -8,23 +8,29 @@ const StyledHeader = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  .logo{
+
+  .logo {
     font-weight: 700;
     font-size: 24px;
     margin-right: 15px;
     color: #F0CA81;
   }
-  .menu{
+
+  .menu {
     display: flex;
-    &__item{
+
+    &__item {
       margin-right: 30px;
-      a{
+
+      a {
         color: #221C1D;
-        &.active{
+
+        &.active {
           color: #F0CA81;
         }
       }
-      &:last-child{
+
+      &:last-child {
         margin-right: 0;
       }
     }
@@ -40,9 +46,7 @@ const Header = ({
                 <li className={'menu__item'}>
                     <NavLink to={"/"}>Kanban from scratch</NavLink>
                 </li>
-                <li className={'menu__item'}>
-                    <NavLink to={"/library"}>Kanban with library</NavLink>
-                </li>
+
             </ul>
         </StyledHeader>
     );

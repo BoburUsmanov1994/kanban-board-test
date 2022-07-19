@@ -1,22 +1,9 @@
 {
   "tasks": [
     {
-      "id": 1,
-      "title": "Task 1",
-      "description": "Task 1",
-      "status": "new"
-    },
-    {
-      "id": 2,
-      "title": "Task 2",
-      "description": "Task 2",
-      "status": "in_progress"
-    },
-    {
-      "id": 3,
-      "title": "Task 3",
-      "description": "Task 3",
-      "status": "completed"
+      "title": "sdadsa",
+      "description": "sdasda",
+      "id": "041f64d5-96fc-4a85-8518-04070e46c83f"
     }
   ]
 }
