@@ -25,10 +25,12 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1.45;
     font-weight: 400;
     font-family: 'Poppins', sans-serif;
-    background-color: #fff;
+    background-color: #F9F9F9;
   }
   
- 
+ .text-center{
+   text-align: center;
+ }
   
 `;
 const Theme = ({children}) => {
